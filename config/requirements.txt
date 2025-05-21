@@ -1,4 +1,5 @@
 langchain-community
+langchain-chroma
 tiktoken
 langchain-openai
 langchain
