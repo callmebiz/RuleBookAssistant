@@ -31,7 +31,7 @@ class QueryTranslator:
     def _multi_query(self, query: str) -> List[str]:
         prompt = ChatPromptTemplate.from_messages([
             ("system", "You are a helpful assistant that reformulates user questions for better document retrieval."),
-            ("user", "Original question: {question}\nGenerate 3 rephrasings. For each, include 'Cite references (chapters, pages, quotes, etc.)'.")
+            ("user", "Original question: {question}\nGenerate 3 rephrasings. For each, include 'Cite references (document name, chapters, pages, quotes, etc.)'.")
         ])
         chain = prompt | self.llm | self.output_parser
         result = chain.invoke({"question": query})
@@ -49,7 +49,7 @@ class QueryTranslator:
     def _step_back_query(self, query: str) -> str:
         prompt = ChatPromptTemplate.from_messages([
             ("system", "You are a helpful assistant that generalizes specific questions."),
-            ("user", "Specific question: {question}\nWhat is a more general version? Include 'Cite references (chapters, pages, quotes, etc.)'.")
+            ("user", "Specific question: {question}\nWhat is a more general version? Include 'Cite references (document name, chapters, pages, quotes, etc.)'.")
         ])
         chain = prompt | self.llm | self.output_parser
         broader_question = chain.invoke({"question": query})
@@ -58,7 +58,7 @@ class QueryTranslator:
     def _decompose_query(self, query: str) -> List[str]:
         prompt = ChatPromptTemplate.from_messages([
             ("system", "You are a helpful assistant that breaks down complex questions into sub-questions."),
-            ("user", "Complex question: {question}\nList 2-3 sub-questions. For each, include 'Cite references (chapters, pages, quotes, etc.)'.")
+            ("user", "Complex question: {question}\nList 2-3 sub-questions. For each, include 'Cite references (document name, chapters, pages, quotes, etc.)'.")
         ])
         chain = prompt | self.llm | self.output_parser
         result = chain.invoke({"question": query})

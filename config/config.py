@@ -1,5 +1,3 @@
-# config/config.py
-
 import os
 import json
 
@@ -10,3 +8,5 @@ def load_environment():
     os.environ["LANGCHAIN_TRACING_V2"] = "true"
     os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
     os.environ["LANGSMITH_PROJECT"] = "RuleBookAssistant"
+    os.environ["PINECONE_API_KEY"] = keys.get("PINECONE_API_KEY", "")
+    os.environ["PINECONE_ENV"] = keys.get("PINECONE_ENV", "")

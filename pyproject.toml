@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rulebook-assistant"
+version = "0.1.0"
+description = "A modular RAG pipeline for rulebooks like D&D."
+requires-python = ">=3.9"
+readme = "README.md"
+dependencies = []
+
+[tool.setuptools]
+packages = ["rag", "config"]
+package-dir = {"" = "src", "config" = "config"}

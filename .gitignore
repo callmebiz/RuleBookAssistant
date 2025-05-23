@@ -1,4 +1,4 @@
+__pycache__/
 data/*
 config/*.json
-config/__pycache__/
-src/rag/__pycache__/
+*.egg-info

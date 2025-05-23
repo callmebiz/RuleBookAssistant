@@ -1,6 +1,9 @@
 # src/rag/tracing.py
 
 from langsmith import traceable
+from src.rag.retrieval import retrieve_documents
+from src.rag.query_construction import format_context
+from src.rag.generation import generate_response
 
 
 @traceable(name="Translate Query")
@@ -10,17 +13,14 @@ def traced_translate(translator, query):
 
 @traceable(name="Retrieve Documents")
 def traced_retrieve(retriever, queries, top_k=4):
-    from src.rag.retrieval import retrieve_documents
     return retrieve_documents(retriever, queries, top_k)
 
 
 @traceable(name="Construct Prompt")
 def traced_construct_prompt(docs):
-    from src.rag.query_construction import format_context
     return format_context(docs)
 
 
 @traceable(name="Generate Response")
 def traced_generate(prompt, llm, context, question):
-    from src.rag.generation import generate_response
     return generate_response(prompt, llm, context, question)
