@@ -61,7 +61,7 @@ data/
     └── monopoly/
         └── Monopoly-Guide.pdf
 ```
-
+- Ensure `config/supported_games.json` contains all the games you have added.
 ---
 
 ## 📚 Index Rulebooks
