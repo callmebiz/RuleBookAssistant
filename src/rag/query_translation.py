@@ -7,13 +7,13 @@ from langchain_core.output_parsers import StrOutputParser
 
 
 class QueryTranslator:
-    def __init__(self, llm: BaseLanguageModel, strategy: str = "original"):
+    def __init__(self, llm: BaseLanguageModel, strategy: str = "passthrough"):
         self.llm = llm
         self.strategy = strategy.lower()
         self.output_parser = StrOutputParser()
     
     def translate(self, query: str) -> Union[str, List[str]]:
-        if self.strategy == "original":
+        if self.strategy == "passthrough":
             return query
         elif self.strategy == "multi_query":
             return self._multi_query(query)

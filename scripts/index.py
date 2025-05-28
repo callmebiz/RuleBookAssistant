@@ -1,23 +1,30 @@
+import argparse
+import os
 from config.config import load_environment
+from rag.indexing import index_pdfs
+
 load_environment()
 
-from rag.indexing import index_pdfs
-import argparse
+parser = argparse.ArgumentParser(description="Index rulebook PDFs for a specific game.")
+parser.add_argument("--game", required=True, help="Name of the game (e.g., 'monopoly', 'dungeons_and_dragons')")
+parser.add_argument("--target", choices=["pinecone", "chroma"], default="pinecone", help="Vectorstore target")
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Index rulebooks to a vectorstore.")
-    parser.add_argument("--target", choices=["chroma", "pinecone"], default="chroma", help="Which vectorstore to use")
-    parser.add_argument("--raw_dir", default="data/raw", help="Directory containing PDF files")
-    parser.add_argument("--persist_dir", default="data/vectorstore", help="Chroma vectorstore directory (ignored for Pinecone)")
-    parser.add_argument("--namespace", default="dnd", help="Pinecone namespace to index into")
+args = parser.parse_args()
 
-    args = parser.parse_args()
-    use_pinecone = args.target == "pinecone"
+game = args.game
+target = args.target
+namespace = game
+raw_path = os.path.join("data", "raw", game)
+persist_path = os.path.join("data", "vectorstore", game)
 
-    print(f"\n📚 Indexing PDFs from '{args.raw_dir}' using {'Pinecone' if use_pinecone else 'Chroma'}...\n")
-    index_pdfs(
-        raw_dir=args.raw_dir,
-        persist_dir=args.persist_dir if not use_pinecone else None,
-        use_pinecone=use_pinecone,
-        namespace=args.namespace
-    )
+if not os.path.isdir(raw_path):
+    raise FileNotFoundError(f"No folder found at: {raw_path}")
+
+print(f"\n📚 Indexing PDFs from '{raw_path}' using {target.capitalize()}...")
+
+index_pdfs(
+    raw_dir=raw_path,
+    persist_dir=persist_path,
+    use_pinecone=(target == "pinecone"),
+    namespace=namespace
+)

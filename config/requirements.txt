@@ -1,9 +1,0 @@
-langchain-community
-langchain-chroma
-langchain-pinecone
-tiktoken
-langchain-openai
-langchain
-chromadb
-pypdf
-pinecone

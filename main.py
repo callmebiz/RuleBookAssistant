@@ -1,3 +1,5 @@
+import argparse
+import json
 from config.config import load_environment
 load_environment()
 
@@ -16,42 +18,69 @@ from rag.tracing import (
 
 @traceable(name="RAG End-to-End")
 def run_pipeline(question: str, strategy: str, use_pinecone: bool, namespace: str) -> str:
-
-    # Init components
     llm = ChatOpenAI(model="gpt-4o-mini")
     translator = QueryTranslator(llm, strategy=strategy)
     prompt = get_prompt()
-    vectorstore = load_vectorstore("data/vectorstore", use_pinecone=use_pinecone, namespace=namespace)
+    vectorstore = load_vectorstore(namespace=namespace, persist_dir="data/vectorstore", use_pinecone=use_pinecone)
     retriever = vectorstore.as_retriever()
 
-    # Translate query
     queries = traced_translate(translator, question)
     if isinstance(queries, str):
         queries = [queries]
 
-    # Retrieve documents
     docs = traced_retrieve(retriever, queries)
-
-    # Construct context from retrieved docs
     context = traced_construct_prompt(docs)
-
-    # Generate final response
     response = traced_generate(prompt, llm, context, question)
     return response
 
+def get_supported_games():
+    with open('config/supported_games.json', 'r') as file:
+        supported_games = json.load(file)
+        supported_games = [game["abbr"] for _, game in supported_games.items()]
+    return supported_games        
+
+def create_parser(supported_games):
+    parser = argparse.ArgumentParser(description="Run a RAG pipeline for a given game.")
+
+    parser.add_argument(
+        "-q", "--question",
+        required=True,
+        help="The user question to answer."
+    )
+
+    parser.add_argument(
+        "-s", "--strategy",
+        default="passthrough",
+        choices=["passthrough", "multi_query", "rag_fusion", "hyde", "step_back", "decompose"],
+        help="Query translation strategy to use."
+    )
+
+    parser.add_argument(
+        "-t", "--target",
+        default="pinecone",
+        choices=["pinecone", "chroma"],
+        help="Vectorstore backend to use."
+    )
+
+    parser.add_argument(
+        "-n", "--namespace",
+        required=True,
+        choices=supported_games,
+        help="The namespace (game name) for document retrieval.  See `config/supported_games.json` for supported game/namespace names."
+    )
+    
+    return parser
+
 
 if __name__ == "__main__":
-    question = "What are good plot hooks for a beginner campaign?"
-    
-    strategy = "multi_query"       # Options: original, multi_query, rag_fusion, hyde, step_back, decompose
-    use_pinecone = True            # Toggle vectorstore backend. True = Pinecone, False = Chroma.
-    namespace = "dnd"              # Game-specific document group
+    supported_games = get_supported_games()
+    parser = create_parser(supported_games)
+    args = parser.parse_args()
 
     answer = run_pipeline(
-        question=question,
-        strategy=strategy,
-        use_pinecone=use_pinecone,
-        namespace=namespace
+        question=args.question,
+        strategy=args.strategy,
+        use_pinecone=(args.target == "pinecone"),
+        namespace=args.namespace
     )
-    print("\n--- FINAL RESPONSE ---\n")
     print(answer)

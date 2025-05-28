@@ -25,7 +25,7 @@ def upload_in_batches(
     batch_size: int = 200
 ):
     total = len(documents)
-    print(f"📦 Uploading {total} documents to Pinecone in batches of {batch_size}...")
+    print(f"Uploading {total} documents to Pinecone in batches of {batch_size}...")
     
     for i in range(0, total, batch_size):
         batch = documents[i:i+batch_size]
@@ -38,7 +38,7 @@ def upload_in_batches(
             namespace=namespace
         )
 
-def index_pdfs(raw_dir: str, persist_dir: Optional[str] = None, use_pinecone: bool = False, namespace: str = "dnd"):
+def index_pdfs(raw_dir: str, namespace: str, persist_dir: Optional[str] = None, use_pinecone: bool = False):
     loader = DirectoryLoader(raw_dir, glob="**/*.pdf", loader_cls=PyPDFLoader)
     documents = loader.load()
 
@@ -61,7 +61,7 @@ def index_pdfs(raw_dir: str, persist_dir: Optional[str] = None, use_pinecone: bo
             namespace=namespace,
             batch_size=200
         )
-        print("✅ All batches uploaded successfully.")
+        print("All batches uploaded successfully.")
         return
 
     if not persist_dir:
@@ -73,10 +73,10 @@ def index_pdfs(raw_dir: str, persist_dir: Optional[str] = None, use_pinecone: bo
         embedding=embeddings,
         persist_directory=persist_dir
     )
-    print("✅ Chroma indexing complete.")
+    print("Chroma indexing complete.")
     return vectorstore
 
-def load_vectorstore(persist_dir: Optional[str] = None, use_pinecone: bool = False, namespace: str = "dnd"):
+def load_vectorstore(namespace: str, persist_dir: Optional[str] = None, use_pinecone: bool = False):
     embeddings = OpenAIEmbeddings()
 
     if use_pinecone:

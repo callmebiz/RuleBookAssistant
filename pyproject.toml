@@ -5,10 +5,22 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "rulebook-assistant"
 version = "0.1.0"
-description = "A modular RAG pipeline for rulebooks like D&D."
+description = "A modular RAG pipeline for tabletop games like D&D and Monopoly."
 requires-python = ">=3.9"
 readme = "README.md"
-dependencies = []
+
+dependencies = [
+    "langchain-community",
+    "langchain-chroma",
+    "langchain-pinecone",
+    "langchain-openai",
+    "langchain",
+    "chromadb",
+    "pypdf",
+    "pinecone",
+    "tiktoken",
+    "cryptography>=3.1"
+]
 
 [tool.setuptools]
 packages = ["rag", "config"]
