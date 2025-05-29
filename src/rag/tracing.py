@@ -2,7 +2,7 @@
 
 from langsmith import traceable
 from src.rag.retrieval import retrieve_documents
-from src.rag.query_construction import format_context
+from src.rag.query_construction import format_doc
 from src.rag.generation import generate_response
 
 
@@ -18,7 +18,8 @@ def traced_retrieve(retriever, queries, top_k=4):
 
 @traceable(name="Construct Prompt")
 def traced_construct_prompt(docs):
-    return format_context(docs)
+    context = "\n\n".join(format_doc(doc) for doc in docs)
+    return context
 
 
 @traceable(name="Generate Response")

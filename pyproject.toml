@@ -19,7 +19,8 @@ dependencies = [
     "pypdf",
     "pinecone",
     "tiktoken",
-    "cryptography>=3.1"
+    "cryptography>=3.1",
+    "mlflow"
 ]
 
 [tool.setuptools]

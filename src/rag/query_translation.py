@@ -31,7 +31,7 @@ class QueryTranslator:
     def _multi_query(self, query: str) -> List[str]:
         prompt = ChatPromptTemplate.from_messages([
             ("system", "You are a helpful assistant that reformulates user questions for better document retrieval."),
-            ("user", "Original question: {question}\nGenerate 3 rephrasings. For each, include 'Cite references (document name, chapters, pages, quotes, etc.)'.")
+            ("user", "Original question: {question}\nGenerate 4 rephrasings. For each, include 'Cite references (document name, chapters, pages, quotes, etc.)'.")
         ])
         chain = prompt | self.llm | self.output_parser
         result = chain.invoke({"question": query})

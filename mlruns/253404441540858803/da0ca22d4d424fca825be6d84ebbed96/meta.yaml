@@ -1,0 +1,15 @@
+artifact_uri: file:///home/biz/projects/RuleBookAssistant/mlruns/253404441540858803/da0ca22d4d424fca825be6d84ebbed96/artifacts
+end_time: 1748491617093
+entry_point_name: ''
+experiment_id: '253404441540858803'
+lifecycle_stage: active
+run_id: da0ca22d4d424fca825be6d84ebbed96
+run_name: delightful-ape-962
+run_uuid: da0ca22d4d424fca825be6d84ebbed96
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1748491611293
+status: 3
+tags: []
+user_id: biz

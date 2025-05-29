@@ -1,0 +1,15 @@
+artifact_uri: file:///home/biz/projects/RuleBookAssistant/mlruns/253404441540858803/e3fe1f424c774b948c74821172722796/artifacts
+end_time: 1748494448367
+entry_point_name: ''
+experiment_id: '253404441540858803'
+lifecycle_stage: active
+run_id: e3fe1f424c774b948c74821172722796
+run_name: mysterious-goat-489
+run_uuid: e3fe1f424c774b948c74821172722796
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1748494434927
+status: 3
+tags: []
+user_id: biz

@@ -1,0 +1,11 @@
+Resting is an essential aspect of an adventurer's life, requiring periods for recuperation and preparation. There are two types of rests in this context: short rests and long rests.
+
+**Short Rest**: 
+- A short rest lasts at least 1 hour during which a character can do light activities such as eating, drinking, reading, and taking care of their wounds. 
+- At the end of a short rest, a character can spend one or more Hit Dice (up to their maximum number, which corresponds to their level) to regain hit points equal to the roll of the die plus their Constitution modifier. The character can choose to spend additional Hit Dice after each roll.
+
+**Long Rest**:
+- A long rest is a more extended period that allows a character to recover more significantly. 
+- Characters regain spent Hit Dice, specifically half of their total number of Hit Dice, after completing a long rest. However, a character can only benefit from one long rest in a 24-hour period and must have at least 1 hit point at the start of the rest.
+
+Resting is not only for recovering hit points but also provides time for adventurers to engage in preparations for their journeys, craft items, or perform research. This reflects the need for downtime between adventures and the challenges faced during their quests (page 186).
