@@ -95,6 +95,6 @@ def load_vectorstore(namespace: str, persist_dir: Optional[str] = None, use_pine
         raise ValueError("persist_dir is required when use_pinecone=False")
 
     return Chroma(
-        persist_directory=persist_dir,
+        persist_directory=os.path.join(persist_dir, namespace),
         embedding_function=embeddings
     )

@@ -4,6 +4,7 @@ from typing import List, Union
 from langchain_core.language_models import BaseLanguageModel
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+import json
 
 
 class QueryTranslator:
@@ -11,6 +12,8 @@ class QueryTranslator:
         self.llm = llm
         self.strategy = strategy.lower()
         self.output_parser = StrOutputParser()
+        self.prefix = "You are an expert helper assistant on the rules and mechanics of tabletop games. "
+        self.postfix = " write this postfix: \"Cite references (e.g., document name, chapters, pages, quotes, etc.)\", at the end of the line."
     
     def translate(self, query: str) -> Union[str, List[str]]:
         if self.strategy == "passthrough":
@@ -30,8 +33,8 @@ class QueryTranslator:
     
     def _multi_query(self, query: str) -> List[str]:
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a helpful assistant that reformulates user questions for better document retrieval."),
-            ("user", "Original question: {question}\nGenerate 4 rephrasings. For each, include 'Cite references (document name, chapters, pages, quotes, etc.)'.")
+            ("system", self.prefix + "Reformulate user question(s) for better document retrieval."),
+            ("user", "Original question: {question}\nGenerate 4 rephrasings, line by line. For each rephrasing," + self.postfix)
         ])
         chain = prompt | self.llm | self.output_parser
         result = chain.invoke({"question": query})
@@ -39,7 +42,7 @@ class QueryTranslator:
     
     def _hyde_query(self, query: str) -> str:
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are an expert answerer. Given a question, write a hypothetical answer."),
+            ("system", self.prefix + "Given a question, write a hypothetical answer."),
             ("user", "{question}")
         ])
         chain = prompt | self.llm | self.output_parser
@@ -48,8 +51,8 @@ class QueryTranslator:
     
     def _step_back_query(self, query: str) -> str:
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a helpful assistant that generalizes specific questions."),
-            ("user", "Specific question: {question}\nWhat is a more general version? Include 'Cite references (document name, chapters, pages, quotes, etc.)'.")
+            ("system", self.prefix + "Generalize the question(s)."),
+            ("user", "Specific question: {question}\nWhat is a more general version?" + self.postfix)
         ])
         chain = prompt | self.llm | self.output_parser
         broader_question = chain.invoke({"question": query})
@@ -57,8 +60,8 @@ class QueryTranslator:
     
     def _decompose_query(self, query: str) -> List[str]:
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a helpful assistant that breaks down complex questions into sub-questions."),
-            ("user", "Complex question: {question}\nList 2-3 sub-questions. For each, include 'Cite references (document name, chapters, pages, quotes, etc.)'.")
+            ("system", self.prefix + "Break down complex question(s) into sub-questions."),
+            ("user", "Complex question: {question}\nList 3 sub-questions, one line at a time. For each sub-questions," + self.postfix)
         ])
         chain = prompt | self.llm | self.output_parser
         result = chain.invoke({"question": query})

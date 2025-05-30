@@ -14,6 +14,7 @@ from rag.tracing import (
     traced_construct_prompt,
     traced_generate,
 )
+from rag.langchain_callback import UsageTrackingCallback
 
 import mlflow
 from rag.ml_tracking import (
@@ -25,12 +26,20 @@ from rag.ml_tracking import (
 
 
 @traceable(name="RAG End-to-End")
-def run_pipeline(question: str, strategy: str, use_pinecone: bool, namespace: str) -> str:
+def run_pipeline(question: str, strategy: str, use_pinecone: bool, namespace: str, supported_games: dict) -> str:
+    # Get the full name of the game being queried
+    game = "N/A"
+    for _game, details in supported_games.items():
+        if details['abbr'] == namespace:
+            game = _game
+            break
+    game_context = f"\n[The question is pertaining to the game '{game}'. Do not mention the game name.]\n"
+    
     start_experiment()
-
     with mlflow.start_run():
+        callback = UsageTrackingCallback()
         model = "gpt-4o-mini"
-        llm = ChatOpenAI(model=model)
+        llm = ChatOpenAI(model=model, temperature=0, callbacks=[callback])
         translator = QueryTranslator(llm, strategy=strategy)
         prompt = get_prompt()
         vectorstore = load_vectorstore(namespace=namespace, persist_dir="data/vectorstore", use_pinecone=use_pinecone)
@@ -44,7 +53,7 @@ def run_pipeline(question: str, strategy: str, use_pinecone: bool, namespace: st
             "llm_model": model
         })
 
-        queries = traced_translate(translator, question)
+        queries = traced_translate(translator, question + game_context)
         if isinstance(queries, str):
             queries = [queries]
 
@@ -55,18 +64,16 @@ def run_pipeline(question: str, strategy: str, use_pinecone: bool, namespace: st
         log_pipeline_metrics({
             "num_queries": len(queries),
             "num_docs": len(docs),
-            "response_length": len(response)
+            "response_length": len(response),
+            "prompt_tokens": callback.prompt_tokens,
+            "completion_tokens": callback.completion_tokens,
+            "total_tokens": callback.total_tokens,
+            "llm_calls": callback.calls
         })
 
-        log_artifacts(response, context)
+        log_artifacts(response, context, callback.completion_token_details)
 
-        return response
-
-def get_supported_games():
-    with open('config/supported_games.json', 'r') as file:
-        supported_games = json.load(file)
-        supported_games = [game["abbr"] for _, game in supported_games.items()]
-    return supported_games        
+        return response       
 
 def create_parser(supported_games):
     parser = argparse.ArgumentParser(description="Run a RAG pipeline for a given game.")
@@ -100,16 +107,22 @@ def create_parser(supported_games):
     
     return parser
 
+def get_supported_games():
+    with open('config/supported_games.json', 'r') as file:
+        supported_games = json.load(file)
+    return supported_games 
+
 
 if __name__ == "__main__":
     supported_games = get_supported_games()
-    parser = create_parser(supported_games)
+    parser = create_parser([game["abbr"] for _, game in supported_games.items()])
     args = parser.parse_args()
 
     answer = run_pipeline(
         question=args.question,
         strategy=args.strategy,
         use_pinecone=(args.target == "pinecone"),
-        namespace=args.namespace
+        namespace=args.namespace,
+        supported_games=supported_games
     )
     print(answer)
