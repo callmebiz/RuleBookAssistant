@@ -69,7 +69,7 @@ data/
 You must index each game before querying it. Use the CLI tool:
 
 ```bash
-python scripts/index.py --game dungeons_and_dragons --target pinecone
+python scripts/index.py --game dnd --target pinecone
 ```
 
 Available options:
@@ -94,7 +94,7 @@ python main.py \
   --question "What are good plot hooks for a beginner campaign?" \
   --strategy multi_query \
   --target pinecone \
-  --namespace dungeons_and_dragons
+  --namespace dnd
 ```
 
 Arguments:
