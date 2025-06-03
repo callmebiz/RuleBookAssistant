@@ -1,5 +1,5 @@
 __pycache__/
 data/
 mlruns/
-config/*.json
+config/keys.json
 *.egg-info

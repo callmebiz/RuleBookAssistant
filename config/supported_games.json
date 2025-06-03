@@ -1,0 +1,18 @@
+{
+    "Dungeons and Dragons": {
+        "abbr": "dnd",
+        "source": "https://dndstore.wizards.com/us/en/corerules"
+    },
+    "Monopoly": {
+        "abbr": "monopoly",
+        "source": "https://www.hasbro.com/common/instruct/00009.pdf"
+    },
+    "Betrayal at House on the Hill": {
+        "abbr": "bahoth",
+        "source": "https://instructions.hasbro.com/en-us/instruction/avalon-hill-betrayal-at-house-on-the-hill-second-edition-cooperative-board-game"
+    },
+    "Avatar Legends: The Roleplaying Game": {
+        "abbr": "altrpg",
+        "source": "https://magpiegames.com/collections/pdfs-all"
+    }
+}
