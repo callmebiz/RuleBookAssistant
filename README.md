@@ -54,7 +54,7 @@ Organize rulebooks by game name:
 ```
 data/
 └── raw/
-    ├── dungeons_and_dragons/
+    ├── dnd/
     │   ├── DMG.pdf
     │   ├── PHB.pdf
     │   └── MM.pdf
@@ -62,6 +62,7 @@ data/
         └── Monopoly-Guide.pdf
 ```
 - Ensure `config/supported_games.json` contains all the games you have added.
+- Note: The game folder name must match the game's `abbr` seen in the above json.
 ---
 
 ## 📚 Index Rulebooks
@@ -71,11 +72,13 @@ You must index each game before querying it. Use the CLI tool:
 ```bash
 python scripts/index.py --game dnd --target pinecone
 ```
+> Include `--batch_size` to set batch size for indexing (default: 200)
 
 Available options:
 
 - `--game` – Name of the folder in `data/raw/`, also used as the Pinecone namespace.
 - `--target` – Choose between `pinecone` or `chroma`.
+- `--batch_size` – to set batch size for indexing (default: 200).
 
 Example:
 

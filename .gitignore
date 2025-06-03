@@ -3,3 +3,4 @@ data/
 mlruns/
 config/keys.json
 *.egg-info
+notes.md

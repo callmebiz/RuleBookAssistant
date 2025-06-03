@@ -60,7 +60,7 @@ class QueryTranslator:
     def _decompose_query(self, query: str) -> List[str]:
         prompt = ChatPromptTemplate.from_messages([
             ("system", self.prefix + "Break down complex question(s) into sub-questions."),
-            ("user", "Complex question: {question}\nList 3 sub-questions, one line at a time. For each sub-questions," + self.postfix)
+            ("user", "Complex question: {question}\nList 3 sub-questions, line by line. For each sub-questions," + self.postfix)
         ])
         chain = prompt | self.llm | self.output_parser
         result = chain.invoke({"question": query})

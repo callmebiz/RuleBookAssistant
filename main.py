@@ -1,13 +1,13 @@
 """
 main.py - CLI entry point for RuleBook Assistant
 
-This script runs the end-to-end RAG pipeline for answering questions about tabletop game rulebooks.
-It supports multiple query strategies and vector backends, and logs metrics/artifacts for each run.
+This script runs the end-to-end RAG pipeline for answering questions about
+tabletop game rulebooks.
+It supports multiple query strategies and vector backends, and logs
+metrics/artifacts for each run.
 """
 import argparse
 import json
-from config.config import load_environment
-load_environment()
 
 from langchain_openai import ChatOpenAI
 from rag.indexing import load_vectorstore
@@ -21,6 +21,7 @@ from rag.tracing import (
     traced_generate,
 )
 from rag.langchain_callback import UsageTrackingCallback
+from rag.config_schema import RulebookConfig
 
 import mlflow
 from rag.ml_tracking import (
@@ -30,19 +31,29 @@ from rag.ml_tracking import (
     log_artifacts
 )
 
+from pydantic import SecretStr
+
+from config.config import load_config_from_file
+
 
 @traceable(name="RAG End-to-End")
-def run_pipeline(question: str, strategy: str, use_pinecone: bool, namespace: str, supported_games: dict) -> str:
+def run_pipeline(question: str, strategy: str, use_pinecone: bool,
+                 namespace: str, supported_games: dict,
+                 openai_api_key: str) -> str:
     """
-    Runs the full RAG pipeline: query translation, retrieval, prompt construction, and response generation.
+    Runs the full RAG pipeline: query translation, retrieval, prompt
+        construction, and response generation.
     Logs metrics and artifacts for each run.
 
     Args:
         question (str): The user's question.
         strategy (str): Query translation strategy.
-        use_pinecone (bool): Whether to use Pinecone or Chroma as the vectorstore backend.
-        namespace (str): The namespace (game abbreviation) for document retrieval.
-        supported_games (dict): Mapping of supported games and their abbreviations.
+        use_pinecone (bool): Whether to use Pinecone or Chroma as the
+            vectorstore backend.
+        namespace (str): The namespace (game abbreviation) for document
+            retrieval.
+        supported_games (dict): Mapping of supported games and their
+            abbreviations.
 
     Returns:
         str: The generated answer from the LLM.
@@ -53,19 +64,24 @@ def run_pipeline(question: str, strategy: str, use_pinecone: bool, namespace: st
         if details['abbr'] == namespace:
             game = _game
             break
-    # Add game context to the question for LLM, but instruct not to mention the game name
-    game_context = f"\n[The question is pertaining to the game '{game}'. Do not mention the game name.]\n"
-    
+    # Add game context to the question for LLM, but instruct not to mention
+    #   the game name
+    game_context = (f"\n[The query is pertaining to the game '{game}'. "
+                    f"Do not mention the game name.]\n")
+
     start_experiment()
     with mlflow.start_run():
         callback = UsageTrackingCallback()
         model = "gpt-4o-mini"
         # Initialize LLM with callback for usage tracking
-        llm = ChatOpenAI(model=model, temperature=0, callbacks=[callback])
+        llm = ChatOpenAI(model=model, temperature=0, callbacks=[callback],
+                         api_key=SecretStr(openai_api_key))
         translator = QueryTranslator(llm, strategy=strategy)
         prompt = get_prompt()
         # Load the appropriate vectorstore (Pinecone or Chroma)
-        vectorstore = load_vectorstore(namespace=namespace, persist_dir="data/vectorstore", use_pinecone=use_pinecone)
+        vectorstore = load_vectorstore(namespace=namespace,
+                                       persist_dir="data/vectorstore",
+                                       use_pinecone=use_pinecone)
         retriever = vectorstore.as_retriever()
 
         # Log pipeline parameters to MLflow
@@ -103,7 +119,7 @@ def run_pipeline(question: str, strategy: str, use_pinecone: bool, namespace: st
         # Log artifacts (response, context, token details)
         log_artifacts(response, context, callback.completion_token_details)
 
-        return response       
+        return response
 
 
 def create_parser(supported_games):
@@ -116,7 +132,8 @@ def create_parser(supported_games):
     Returns:
         argparse.ArgumentParser: Configured parser.
     """
-    parser = argparse.ArgumentParser(description="Run a RAG pipeline for a given game.")
+    parser = argparse.ArgumentParser(
+        description="Run a RAG pipeline for a given game.")
 
     parser.add_argument(
         "-q", "--question",
@@ -127,7 +144,8 @@ def create_parser(supported_games):
     parser.add_argument(
         "-s", "--strategy",
         default="passthrough",
-        choices=["passthrough", "multi_query", "rag_fusion", "hyde", "step_back", "decompose"],
+        choices=["passthrough", "multi_query", "rag_fusion", "hyde",
+                 "step_back", "decompose"],
         help="Query translation strategy to use."
     )
 
@@ -142,29 +160,35 @@ def create_parser(supported_games):
         "-n", "--namespace",
         required=True,
         choices=supported_games,
-        help="The namespace (game name) for document retrieval.  See `config/supported_games.json` for supported game/namespace names."
+        help=("The namespace (game name) for document retrieval. "
+              "See `config/supported_games.json` for supported "
+              "game/namespace names.")
     )
-    
+
     return parser
 
 
 def get_supported_games():
     """
-    Loads the supported games and their abbreviations from config/supported_games.json.
+    Loads the supported games and their abbreviations from
+        config/supported_games.json.
 
     Returns:
         dict: Mapping of game names to their details (including abbreviation).
     """
     with open('config/supported_games.json', 'r') as file:
         supported_games = json.load(file)
-    return supported_games 
+    return supported_games
 
 
 if __name__ == "__main__":
+    config = load_config_from_file()
+
     # Load supported games from config
     supported_games = get_supported_games()
     # Create CLI parser with supported game abbreviations
-    parser = create_parser([game["abbr"] for _, game in supported_games.items()])
+    parser = create_parser(
+        [game["abbr"] for _, game in supported_games.items()])
     args = parser.parse_args()
 
     # Run the pipeline and print the answer
@@ -173,6 +197,7 @@ if __name__ == "__main__":
         strategy=args.strategy,
         use_pinecone=(args.target == "pinecone"),
         namespace=args.namespace,
-        supported_games=supported_games
+        supported_games=supported_games,
+        openai_api_key=config.openai_api_key
     )
     print(answer)
