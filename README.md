@@ -1,10 +1,10 @@
-# 📘 RuleBook Assistant
+# RuleBook Assistant
 
 **RuleBook Assistant** is a LangChain-based Retrieval-Augmented Generation (RAG) system that answers questions about TTRPG rulebooks such as *Dungeons & Dragons*, *Monopoly*, or others you add. It supports multiple query translation strategies, dynamic vector backends (Chroma, Pinecone), and game-specific namespaces for flexible expansion.
 
 ---
 
-## 🚀 Quickstart
+## Quickstart
 
 ### 1. Clone the Repository and Set Up Environment
 
@@ -62,10 +62,10 @@ data/
         └── Monopoly-Guide.pdf
 ```
 - Ensure `config/supported_games.json` contains all the games you have added.
-- Note: The game folder name must match the game's `abbr` seen in the above json.
+- __Note__: The game folder name must match the game's `abbr` seen in the above json.
 ---
 
-## 📚 Index Rulebooks
+## Index Rulebooks
 
 You must index each game before querying it. Use the CLI tool:
 
@@ -88,7 +88,7 @@ python scripts/index.py --game monopoly --target chroma
 
 ---
 
-## 💬 Ask Questions
+## Ask Questions
 
 Once indexed, you can query the rulebooks:
 
@@ -110,7 +110,7 @@ Arguments:
 
 ---
 
-## 🧠 Strategies
+## Strategies
 
 The assistant supports several RAG strategies:
 
@@ -122,7 +122,7 @@ The assistant supports several RAG strategies:
 
 ---
 
-## 🧪 Development Tips
+## Development Tips
 
 - Reindex anytime PDFs are updated
 - Namespace = game name
@@ -132,7 +132,7 @@ The assistant supports several RAG strategies:
 
 ---
 
-## 📦 Project Structure
+## Project Structure
 
 ```
 src/
@@ -152,7 +152,7 @@ config/
 
 ---
 
-## ✨ Future Enhancements
+## Future Enhancements
 
 - API or Web UI
 - Automatic subfolder detection
